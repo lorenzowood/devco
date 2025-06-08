@@ -22,7 +22,8 @@ def create_parser():
     # principles commands
     principles_parser = subparsers.add_parser('principles', help='Manage project principles')
     principles_subparsers = principles_parser.add_subparsers(dest='principles_action')
-    principles_subparsers.add_parser('add', help='Add a new principle')
+    add_principle = principles_subparsers.add_parser('add', help='Add a new principle')
+    add_principle.add_argument('--text', help='Principle text')
     principles_subparsers.add_parser('clear', help='Reset the principles')
     
     rm_parser = principles_subparsers.add_parser('rm', help='Remove a principle by number')
@@ -47,6 +48,8 @@ def create_parser():
     
     replace_section = section_subparsers.add_parser('replace', help='Replace section content')
     replace_section.add_argument('name', help='Section name')
+    replace_section.add_argument('--summary', help='Section summary')
+    replace_section.add_argument('--detail', help='Section detail')
     
     rm_section = section_subparsers.add_parser('rm', help='Remove a section')
     rm_section.add_argument('name', help='Section name')
@@ -108,7 +111,10 @@ def main():
             # List principles
             principles_manager.list_principles()
         elif args.principles_action == 'add':
-            principles_manager.add_principle()
+            if hasattr(args, 'text') and args.text:
+                principles_manager.add_principle_with_text(args.text)
+            else:
+                principles_manager.add_principle()
         elif args.principles_action == 'rm':
             principles_manager.remove_principle(args.number)
         elif args.principles_action == 'clear':
@@ -143,7 +149,10 @@ def main():
             else:
                 sections_manager.add_section(args.name)
         elif args.section_action == 'replace':
-            sections_manager.replace_section(args.name)
+            if hasattr(args, 'summary') and args.summary and hasattr(args, 'detail') and args.detail:
+                sections_manager.replace_section_with_content(args.name, args.summary, args.detail)
+            else:
+                sections_manager.replace_section(args.name)
         elif args.section_action == 'rm':
             sections_manager.remove_section(args.name)
     elif args.command == 'embed':

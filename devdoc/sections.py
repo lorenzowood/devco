@@ -126,6 +126,30 @@ class SectionsManager:
         except KeyboardInterrupt:
             print("\nCancelled.")
     
+    def replace_section_with_content(self, section_name: str, summary: str, detail: str):
+        """Replace an existing section with provided content (non-interactive)"""
+        try:
+            data = self.storage.load_summary()
+            sections = data.get('sections', {})
+            
+            if section_name not in sections:
+                print(f"Section '{section_name}' not found. Use 'devdoc section add {section_name}' to create it.")
+                return
+            
+            # Update the section
+            sections[section_name] = {
+                'summary': summary,
+                'detail': detail
+            }
+            
+            data['sections'] = sections
+            self.storage.save_summary(data)
+            
+            print(f"Updated section '{section_name}' successfully.")
+        
+        except FileNotFoundError:
+            print("devdoc not initialized. Run 'devdoc init' first.")
+    
     def remove_section(self, section_name: str):
         """Remove a section"""
         try:

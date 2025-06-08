@@ -2,5 +2,7 @@
   "Keep code simple and readable",
   "Follow Test-Driven Development: Red, Green, Refactor",
   "Commit frequently after passing tests",
-  "Use llm package for consistent embeddings across environments"
+  "Use llm package for consistent embeddings across environments",
+  "Include specific function names, file paths, and line numbers in documentation",
+  "Documentation should help AI assistants avoid file searching when context is lost"
 ]

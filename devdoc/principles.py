@@ -47,6 +47,22 @@ class PrinciplesManager:
         except KeyboardInterrupt:
             print("\nCancelled.")
     
+    def add_principle_with_text(self, principle_text: str):
+        """Add a new principle with provided text (non-interactive)"""
+        try:
+            if not principle_text.strip():
+                print("Principle cannot be empty.")
+                return
+            
+            principles = self.storage.load_principles()
+            principles.append(principle_text.strip())
+            self.storage.save_principles(principles)
+            
+            print(f"Added principle #{len(principles)}: {principle_text.strip()}")
+        
+        except FileNotFoundError:
+            print("devdoc not initialized. Run 'devdoc init' first.")
+    
     def remove_principle(self, number: int):
         """Remove a principle by number"""
         try:
