@@ -1,10 +1,11 @@
 """
-Embeddings management for devdoc using llm package
+Embeddings management for devco using llm package
 """
 import json
 import sqlite3
 import subprocess
 import math
+import os
 from typing import List, Dict, Any, Optional, Tuple
 from .storage import DevDocStorage
 
@@ -49,10 +50,26 @@ class EmbeddingsManager:
             config = self.storage.load_config()
             model = config.get('embedding_model', 'gemini-embedding-exp-03-07-2048')
             
+            # Load environment variables from .env file
+            env_file = self.storage.devco_dir / ".env"
+            env_vars = os.environ.copy()
+            
+            if env_file.exists():
+                with open(env_file) as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#') and '=' in line:
+                            key, value = line.split('=', 1)
+                            env_vars[key.strip()] = value.strip()
+            
+            # Set the Gemini API key for llm if available
+            if 'GOOGLE_API_KEY' in env_vars:
+                env_vars['LLM_GEMINI_KEY'] = env_vars['GOOGLE_API_KEY']
+            
             # Use llm embed command
             result = subprocess.run([
                 'llm', 'embed', '-c', text, '-m', model
-            ], capture_output=True, text=True, timeout=30)
+            ], capture_output=True, text=True, timeout=30, env=env_vars)
             
             if result.returncode != 0:
                 print(f"Error generating embedding: {result.stderr}")
@@ -112,7 +129,7 @@ class EmbeddingsManager:
             print(f"Error computing similarity: {e}")
             return 0.0
     
-    def embed_all_content(self):
+    def embed_all_content(self, silent=False):
         """Generate embeddings for all content in storage"""
         try:
             # Clear existing embeddings
@@ -158,7 +175,8 @@ class EmbeddingsManager:
                         if embedding:
                             self.store_embedding("section", f"{section_name}_detail", chunk, embedding)
             
-            print("✓ All content embedded successfully")
+            if not silent:
+                print("✓ All content embedded successfully")
         
         except Exception as e:
             print(f"Error embedding content: {e}")
@@ -205,3 +223,58 @@ class EmbeddingsManager:
         except Exception as e:
             print(f"Error searching content: {e}")
             return []
+    
+    def check_embeddings_status(self) -> dict:
+        """Check if embeddings exist for all content and return status"""
+        try:
+            status = {
+                "has_embeddings": False,
+                "missing_content": [],
+                "total_content_items": 0,
+                "embedded_items": 0
+            }
+            
+            # Count content items
+            principles = self.storage.load_principles()
+            summary_data = self.storage.load_summary()
+            sections = summary_data.get('sections', {})
+            
+            content_items = []
+            content_items.extend([f"principle_{i+1}" for i in range(len(principles))])
+            if summary_data.get('summary'):
+                content_items.append("summary_main")
+            for section_name in sections:
+                content_items.append(f"section_{section_name}")
+                content_items.append(f"section_{section_name}_detail")
+            
+            status["total_content_items"] = len(content_items)
+            
+            # Check what's in embeddings DB
+            conn = self.storage.get_db_connection()
+            cursor = conn.execute("SELECT DISTINCT content_type, content_id FROM embeddings")
+            embedded_items = set()
+            for row in cursor.fetchall():
+                content_type, content_id = row
+                embedded_items.add(f"{content_type}_{content_id}")
+            conn.close()
+            
+            status["embedded_items"] = len(embedded_items)
+            status["has_embeddings"] = len(embedded_items) > 0
+            
+            # Find missing items
+            missing = []
+            for item in content_items:
+                if item not in embedded_items:
+                    missing.append(item)
+            
+            status["missing_content"] = missing
+            return status
+            
+        except Exception as e:
+            return {
+                "has_embeddings": False,
+                "missing_content": [],
+                "total_content_items": 0,
+                "embedded_items": 0,
+                "error": str(e)
+            }

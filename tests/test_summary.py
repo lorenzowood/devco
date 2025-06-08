@@ -7,8 +7,8 @@ from io import StringIO
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from devdoc.storage import DevDocStorage
-from devdoc.summary import SummaryManager
+from devco.storage import DevDocStorage
+from devco.summary import SummaryManager
 
 
 class TestSummaryManager:

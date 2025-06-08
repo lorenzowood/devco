@@ -8,7 +8,7 @@ from unittest.mock import patch
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from devdoc.storage import DevDocStorage
+from devco.storage import DevDocStorage
 
 
 class TestDevDocStorage:
@@ -18,21 +18,21 @@ class TestDevDocStorage:
         with tempfile.TemporaryDirectory() as tmpdir:
             yield tmpdir
     
-    def test_init_creates_devdoc_directory(self, temp_dir):
-        """Test that init creates .devdoc directory with required files"""
+    def test_init_creates_devco_directory(self, temp_dir):
+        """Test that init creates .devco directory with required files"""
         storage = DevDocStorage(temp_dir)
         storage.init()
         
-        devdoc_dir = Path(temp_dir) / '.devdoc'
-        assert devdoc_dir.exists()
-        assert devdoc_dir.is_dir()
+        devco_dir = Path(temp_dir) / '.devco'
+        assert devco_dir.exists()
+        assert devco_dir.is_dir()
     
     def test_init_creates_config_file(self, temp_dir):
         """Test that init creates config.json with default settings"""
         storage = DevDocStorage(temp_dir)
         storage.init()
         
-        config_file = Path(temp_dir) / '.devdoc' / 'config.json'
+        config_file = Path(temp_dir) / '.devco' / 'config.json'
         assert config_file.exists()
         
         with open(config_file) as f:
@@ -46,7 +46,7 @@ class TestDevDocStorage:
         storage = DevDocStorage(temp_dir)
         storage.init()
         
-        principles_file = Path(temp_dir) / '.devdoc' / 'principles.json'
+        principles_file = Path(temp_dir) / '.devco' / 'principles.json'
         assert principles_file.exists()
         
         with open(principles_file) as f:
@@ -60,7 +60,7 @@ class TestDevDocStorage:
         storage = DevDocStorage(temp_dir)
         storage.init()
         
-        summary_file = Path(temp_dir) / '.devdoc' / 'summary.json'
+        summary_file = Path(temp_dir) / '.devco' / 'summary.json'
         assert summary_file.exists()
         
         with open(summary_file) as f:
@@ -75,15 +75,15 @@ class TestDevDocStorage:
         storage = DevDocStorage(temp_dir)
         storage.init()
         
-        db_file = Path(temp_dir) / '.devdoc' / 'devdoc.db'
+        db_file = Path(temp_dir) / '.devco' / 'devco.db'
         assert db_file.exists()
     
     def test_init_creates_env_file(self, temp_dir):
-        """Test that init creates .env file in .devdoc directory"""
+        """Test that init creates .env file in .devco directory"""
         storage = DevDocStorage(temp_dir)
         storage.init()
         
-        env_file = Path(temp_dir) / '.devdoc' / '.env'
+        env_file = Path(temp_dir) / '.devco' / '.env'
         assert env_file.exists()
         
         with open(env_file) as f:
@@ -97,7 +97,7 @@ class TestDevDocStorage:
         storage.init()
         
         # Modify config
-        config_file = Path(temp_dir) / '.devdoc' / 'config.json'
+        config_file = Path(temp_dir) / '.devco' / 'config.json'
         with open(config_file) as f:
             config = json.load(f)
         config['test_key'] = 'test_value'

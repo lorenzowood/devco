@@ -1,3 +1,44 @@
+Metadata-Version: 2.4
+Name: devco
+Version: 0.1.0
+Summary: A CLI tool that helps AI assistants understand projects through persistent documentation and RAG search
+Home-page: https://github.com/yourusername/devco
+Author: Claude Code
+Author-email: Claude Code <noreply@anthropic.com>
+License: MIT
+Project-URL: Homepage, https://github.com/yourusername/devco
+Project-URL: Repository, https://github.com/yourusername/devco
+Project-URL: Bug Reports, https://github.com/yourusername/devco/issues
+Project-URL: Documentation, https://github.com/yourusername/devco/wiki
+Keywords: documentation,ai,assistant,rag,vector,search,embeddings,cli,development
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Documentation
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: llm>=0.13.0
+Requires-Dist: llm-gemini
+Requires-Dist: sqlite-utils>=3.0.0
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: numpy>=1.20.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-mock>=3.0.0; extra == "dev"
+Dynamic: author
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+
 # devco
 
 > A CLI tool that helps AI assistants understand projects by managing persistent documentation, principles, and context through embeddings and RAG querying.

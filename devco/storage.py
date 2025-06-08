@@ -1,5 +1,5 @@
 """
-Storage module for devdoc - handles .devdoc directory structure and data persistence
+Storage module for devco - handles .devco directory structure and data persistence
 """
 import json
 import os
@@ -9,19 +9,19 @@ from typing import Dict, Any, List
 
 
 class DevDocStorage:
-    """Manages the .devdoc directory and all persistent storage"""
+    """Manages the .devco directory and all persistent storage"""
     
     def __init__(self, project_root: str = "."):
         self.project_root = Path(project_root)
-        self.devdoc_dir = self.project_root / ".devdoc"
+        self.devco_dir = self.project_root / ".devco"
         
     def init(self):
-        """Initialize the .devdoc directory structure"""
-        # Create .devdoc directory
-        self.devdoc_dir.mkdir(exist_ok=True)
+        """Initialize the .devco directory structure"""
+        # Create .devco directory
+        self.devco_dir.mkdir(exist_ok=True)
         
         # Create config.json if it doesn't exist
-        config_file = self.devdoc_dir / "config.json"
+        config_file = self.devco_dir / "config.json"
         if not config_file.exists():
             config = {
                 "version": "0.1.0",
@@ -33,13 +33,13 @@ class DevDocStorage:
                 json.dump(config, f, indent=2)
         
         # Create principles.json if it doesn't exist
-        principles_file = self.devdoc_dir / "principles.json"
+        principles_file = self.devco_dir / "principles.json"
         if not principles_file.exists():
             with open(principles_file, 'w') as f:
                 json.dump([], f, indent=2)
         
         # Create summary.json if it doesn't exist
-        summary_file = self.devdoc_dir / "summary.json"
+        summary_file = self.devco_dir / "summary.json"
         if not summary_file.exists():
             summary = {
                 "summary": "",
@@ -49,7 +49,7 @@ class DevDocStorage:
                 json.dump(summary, f, indent=2)
         
         # Create SQLite database if it doesn't exist
-        db_file = self.devdoc_dir / "devdoc.db"
+        db_file = self.devco_dir / "devco.db"
         if not db_file.exists():
             conn = sqlite3.connect(db_file)
             # Create embeddings table
@@ -69,69 +69,69 @@ class DevDocStorage:
             conn.close()
         
         # Create .env file if it doesn't exist
-        env_file = self.devdoc_dir / ".env"
+        env_file = self.devco_dir / ".env"
         if not env_file.exists():
             with open(env_file, 'w') as f:
-                f.write("# devdoc environment variables\n")
+                f.write("# devco environment variables\n")
                 f.write("GOOGLE_API_KEY=\n")
                 f.write("# Uncomment and set your preferred embedding model:\n")
-                f.write("# DEVDOC_EMBEDDING_MODEL=gemini-embedding-exp-03-07-2048\n")
+                f.write("# DEVCO_EMBEDDING_MODEL=gemini-embedding-exp-03-07-2048\n")
     
     def load_config(self) -> Dict[str, Any]:
         """Load configuration from config.json"""
-        config_file = self.devdoc_dir / "config.json"
+        config_file = self.devco_dir / "config.json"
         if not config_file.exists():
-            raise FileNotFoundError("devdoc not initialized. Run 'devdoc init' first.")
+            raise FileNotFoundError("devco not initialized. Run 'devco init' first.")
         
         with open(config_file) as f:
             return json.load(f)
     
     def save_config(self, config: Dict[str, Any]):
         """Save configuration to config.json"""
-        config_file = self.devdoc_dir / "config.json"
+        config_file = self.devco_dir / "config.json"
         with open(config_file, 'w') as f:
             json.dump(config, f, indent=2)
     
     def load_principles(self) -> List[str]:
         """Load principles from principles.json"""
-        principles_file = self.devdoc_dir / "principles.json"
+        principles_file = self.devco_dir / "principles.json"
         if not principles_file.exists():
-            raise FileNotFoundError("devdoc not initialized. Run 'devdoc init' first.")
+            raise FileNotFoundError("devco not initialized. Run 'devco init' first.")
         
         with open(principles_file) as f:
             return json.load(f)
     
     def save_principles(self, principles: List[str]):
         """Save principles to principles.json"""
-        principles_file = self.devdoc_dir / "principles.json"
+        principles_file = self.devco_dir / "principles.json"
         with open(principles_file, 'w') as f:
             json.dump(principles, f, indent=2)
     
     def load_summary(self) -> Dict[str, Any]:
         """Load summary from summary.json"""
-        summary_file = self.devdoc_dir / "summary.json"
+        summary_file = self.devco_dir / "summary.json"
         if not summary_file.exists():
-            raise FileNotFoundError("devdoc not initialized. Run 'devdoc init' first.")
+            raise FileNotFoundError("devco not initialized. Run 'devco init' first.")
         
         with open(summary_file) as f:
             return json.load(f)
     
     def save_summary(self, summary: Dict[str, Any]):
         """Save summary to summary.json"""
-        summary_file = self.devdoc_dir / "summary.json"
+        summary_file = self.devco_dir / "summary.json"
         with open(summary_file, 'w') as f:
             json.dump(summary, f, indent=2)
     
     def get_db_connection(self) -> sqlite3.Connection:
         """Get a connection to the SQLite database"""
-        db_file = self.devdoc_dir / "devdoc.db"
+        db_file = self.devco_dir / "devco.db"
         if not db_file.exists():
-            raise FileNotFoundError("devdoc not initialized. Run 'devdoc init' first.")
+            raise FileNotFoundError("devco not initialized. Run 'devco init' first.")
         
         return sqlite3.connect(db_file)
     
     def is_initialized(self) -> bool:
-        """Check if devdoc is initialized in the current directory"""
-        return (self.devdoc_dir.exists() and 
-                (self.devdoc_dir / "config.json").exists() and
-                (self.devdoc_dir / "devdoc.db").exists())
+        """Check if devco is initialized in the current directory"""
+        return (self.devco_dir.exists() and 
+                (self.devco_dir / "config.json").exists() and
+                (self.devco_dir / "devco.db").exists())

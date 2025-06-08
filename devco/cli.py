@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-devdoc - Project documentation and context management tool
+devco - Project documentation and context management tool
 """
 import argparse
 import sys
 
 
 def create_parser():
-    """Create the argument parser for devdoc"""
+    """Create the argument parser for devco"""
     parser = argparse.ArgumentParser(
-        prog='devdoc',
+        prog='devco',
         description='Project documentation and context management tool'
     )
     
@@ -17,7 +17,7 @@ def create_parser():
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
     
     # init command
-    subparsers.add_parser('init', help='Initialize devdoc in a project')
+    subparsers.add_parser('init', help='Initialize devco in a project')
     
     # principles commands
     principles_parser = subparsers.add_parser('principles', help='Manage project principles')
@@ -32,11 +32,12 @@ def create_parser():
     # summary commands
     summary_parser = subparsers.add_parser('summary', help='Manage project summary')
     summary_subparsers = summary_parser.add_subparsers(dest='summary_action')
-    summary_subparsers.add_parser('replace', help='Replace the summary text')
+    replace_summary = summary_subparsers.add_parser('replace', help='Replace the summary text')
+    replace_summary.add_argument('--text', help='Summary text')
     
-    # section commands
+    # section commands  
     section_parser = subparsers.add_parser('section', help='Manage project sections')
-    section_subparsers = section_parser.add_subparsers(dest='section_action')
+    section_subparsers = section_parser.add_subparsers(dest='section_action', help='Section commands')
     
     show_section = section_subparsers.add_parser('show', help='Show a specific section')
     show_section.add_argument('name', help='Section name')
@@ -54,47 +55,55 @@ def create_parser():
     rm_section = section_subparsers.add_parser('rm', help='Remove a section')
     rm_section.add_argument('name', help='Section name')
     
+    # Special handling for 'devco section name' shorthand - we'll handle this in the main function
+    
     # embed command
-    subparsers.add_parser('embed', help='Generate embeddings for all content')
+    embed_parser = subparsers.add_parser('embed', help='Generate embeddings for all content')
+    embed_parser.add_argument('--model', help='Embedding model to use (also updates .env)')
     
     # query command
-    query_parser = subparsers.add_parser('query', help='Query the devdoc content')
+    query_parser = subparsers.add_parser('query', help='Query the devco content')
     query_parser.add_argument('text', help='Query text')
+    query_parser.add_argument('--json', action='store_true', help='Output results in JSON format')
+    query_parser.add_argument('--update-embeddings', action='store_true', help='Update embeddings for any missing content before querying')
+    
+    # Hidden embed-all command for background processing
+    embed_all_parser = subparsers.add_parser('_embed-all', help=argparse.SUPPRESS)
     
     return parser
 
 
 def cmd_init():
-    """Initialize devdoc in the current project"""
+    """Initialize devco in the current project"""
     from .storage import DevDocStorage
     
     storage = DevDocStorage()
     
     if storage.is_initialized():
-        print("devdoc is already initialized in this project.")
+        print("devco is already initialized in this project.")
         return
     
     try:
         storage.init()
-        print("✓ devdoc initialized successfully!")
-        print("  Created .devdoc/ directory with:")
+        print("✓ devco initialized successfully!")
+        print("  Created .devco/ directory with:")
         print("  - config.json (configuration)")
         print("  - principles.json (development principles)")
         print("  - summary.json (project summary and sections)")
-        print("  - devdoc.db (embeddings database)")
+        print("  - devco.db (embeddings database)")
         print("  - .env (environment variables)")
         print("")
         print("Next steps:")
-        print("1. Add your GOOGLE_API_KEY to .devdoc/.env")
-        print("2. Add development principles: devdoc principles add")
-        print("3. Set project summary: devdoc summary replace")
+        print("1. Add your GOOGLE_API_KEY to .devco/.env")
+        print("2. Add development principles: devco principles add")
+        print("3. Set project summary: devco summary replace")
     except Exception as e:
-        print(f"Error initializing devdoc: {e}")
+        print(f"Error initializing devco: {e}")
         sys.exit(1)
 
 
 def main():
-    """Main entry point for the devdoc CLI"""
+    """Main entry point for the devco CLI"""
     parser = create_parser()
     args = parser.parse_args()
     
@@ -130,7 +139,10 @@ def main():
             # Show summary
             summary_manager.show_summary()
         elif args.summary_action == 'replace':
-            summary_manager.replace_summary()
+            if hasattr(args, 'text') and args.text:
+                summary_manager.replace_summary(args.text)
+            else:
+                summary_manager.replace_summary()
     elif args.command == 'section':
         from .storage import DevDocStorage
         from .sections import SectionsManager
@@ -140,6 +152,11 @@ def main():
         
         if args.section_action is None:
             print("Section command requires an action")
+            print("Usage:")
+            print("  devco section add <name> [--summary TEXT] [--detail TEXT]")
+            print("  devco section show <name>")  
+            print("  devco section replace <name> [--summary TEXT] [--detail TEXT]")
+            print("  devco section rm <name>")
             sys.exit(1)
         elif args.section_action == 'show':
             sections_manager.show_section(args.name)
@@ -161,10 +178,39 @@ def main():
         
         storage = DevDocStorage()
         if not storage.is_initialized():
-            print("devdoc not initialized. Run 'devdoc init' first.")
+            print("devco not initialized. Run 'devco init' first.")
             sys.exit(1)
         
         embeddings_manager = EmbeddingsManager(storage)
+        
+        # Update model if provided
+        if hasattr(args, 'model') and args.model:
+            config = storage.load_config()
+            config['embedding_model'] = args.model
+            storage.save_config(config)
+            
+            # Update .env file with model
+            env_file = storage.devco_dir / ".env"
+            env_lines = []
+            model_found = False
+            
+            if env_file.exists():
+                with open(env_file) as f:
+                    for line in f:
+                        if line.strip().startswith('DEVCO_EMBEDDING_MODEL='):
+                            env_lines.append(f"DEVCO_EMBEDDING_MODEL={args.model}\n")
+                            model_found = True
+                        else:
+                            env_lines.append(line)
+            
+            if not model_found:
+                env_lines.append(f"DEVCO_EMBEDDING_MODEL={args.model}\n")
+            
+            with open(env_file, 'w') as f:
+                f.writelines(env_lines)
+            
+            print(f"Updated embedding model to: {args.model}")
+        
         print("Generating embeddings for all content...")
         embeddings_manager.embed_all_content()
     elif args.command == 'query':
@@ -173,22 +219,69 @@ def main():
         
         storage = DevDocStorage()
         if not storage.is_initialized():
-            print("devdoc not initialized. Run 'devdoc init' first.")
+            print("devco not initialized. Run 'devco init' first.")
             sys.exit(1)
         
         embeddings_manager = EmbeddingsManager(storage)
+        
+        # Check embedding status
+        status = embeddings_manager.check_embeddings_status()
+        
+        # Handle --update-embeddings flag
+        if hasattr(args, 'update_embeddings') and args.update_embeddings:
+            if status["missing_content"]:
+                print("Updating embeddings for new content...")
+                embeddings_manager.embed_all_content()
+        
+        # Check if we have any embeddings at all
+        elif not status["has_embeddings"]:
+            if hasattr(args, 'json') and args.json:
+                import json
+                print(json.dumps({"query": args.text, "results": [], "warning": "No embeddings found. Use --update-embeddings or run 'devco embed' first."}))
+            else:
+                print("Warning: No embeddings found. Use --update-embeddings or run 'devco embed' first.")
+                print("No similar content found.")
+            return
+        
+        # Check for missing embeddings  
+        elif status["missing_content"]:
+            missing_count = len(status["missing_content"])
+            if not (hasattr(args, 'json') and args.json):
+                print(f"Note: {missing_count} content items don't have embeddings yet. Use --update-embeddings to include them.")
+        
         results = embeddings_manager.search_similar_content(args.text, limit=5)
         
         if not results:
-            print("No similar content found. Try running 'devdoc embed' first to generate embeddings.")
+            if hasattr(args, 'json') and args.json:
+                import json
+                print(json.dumps({"query": args.text, "results": []}))
+            else:
+                print("No similar content found.")
             return
         
-        print(f"Similar content for query: '{args.text}'")
-        print("=" * 50)
+        if hasattr(args, 'json') and args.json:
+            import json
+            output = {
+                "query": args.text,
+                "results": results
+            }
+            print(json.dumps(output, indent=2))
+        else:
+            print(f"Similar content for query: '{args.text}'")
+            print("=" * 50)
+            
+            for i, result in enumerate(results, 1):
+                print(f"\n{i}. [{result['content_type']}] {result['content_id']} (similarity: {result['similarity']:.3f})")
+                print(f"   {result['chunk_text'][:200]}{'...' if len(result['chunk_text']) > 200 else ''}")
+    elif args.command == '_embed-all':
+        # Hidden command for background embedding
+        from .storage import DevDocStorage
+        from .embeddings import EmbeddingsManager
         
-        for i, result in enumerate(results, 1):
-            print(f"\n{i}. [{result['content_type']}] {result['content_id']} (similarity: {result['similarity']:.3f})")
-            print(f"   {result['chunk_text'][:200]}{'...' if len(result['chunk_text']) > 200 else ''}")
+        storage = DevDocStorage()
+        if storage.is_initialized():
+            embeddings_manager = EmbeddingsManager(storage)
+            embeddings_manager.embed_all_content(silent=True)
     else:
         # No command provided
         parser.print_help()

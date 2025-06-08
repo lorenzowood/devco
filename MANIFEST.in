@@ -1,7 +1,7 @@
 include README.md
 include LICENSE
 include requirements.txt
-recursive-include devdoc *.py
+recursive-include devco *.py
 recursive-exclude tests *
-recursive-exclude .devdoc *
+recursive-exclude .devco *
 exclude .gitignore

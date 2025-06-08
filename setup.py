@@ -4,14 +4,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="devdoc",
-    version="0.1.0",
-    author="Claude Code",
+    name="devco",
+    version="0.1.7",
+    author="Claude Code", 
     author_email="noreply@anthropic.com",
     description="A CLI tool that helps AI assistants understand projects through persistent documentation and RAG search",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/devdoc",
+    url="https://github.com/lorenzowood/devco",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -42,14 +42,14 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "devdoc=devdoc.cli:main",
+            "devco=devco.cli:main",
         ],
     },
     python_requires=">=3.8",
     keywords="documentation ai assistant rag vector search embeddings cli development",
     project_urls={
-        "Bug Reports": "https://github.com/yourusername/devdoc/issues",
-        "Source": "https://github.com/yourusername/devdoc",
-        "Documentation": "https://github.com/yourusername/devdoc/wiki",
+        "Bug Reports": "https://github.com/lorenzowood/devco/issues",
+        "Source": "https://github.com/lorenzowood/devco",
+        "Documentation": "https://github.com/lorenzowood/devco/wiki",
     },
 )

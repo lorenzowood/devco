@@ -8,8 +8,8 @@ from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from devdoc.storage import DevDocStorage
-from devdoc.embeddings import EmbeddingsManager
+from devco.storage import DevDocStorage
+from devco.embeddings import EmbeddingsManager
 
 
 class TestEmbeddingsManager:
@@ -111,7 +111,7 @@ class TestEmbeddingsManager:
         similarity = embeddings_manager.compute_similarity(vec1, vec3)
         assert abs(similarity - 1.0) < 0.01
     
-    @patch('devdoc.embeddings.EmbeddingsManager.generate_embedding')
+    @patch('devco.embeddings.EmbeddingsManager.generate_embedding')
     def test_embed_all_content(self, mock_generate, embeddings_manager):
         """Test embedding all content from storage"""
         # Setup test data
@@ -143,7 +143,7 @@ class TestEmbeddingsManager:
         
         assert count >= 4
     
-    @patch('devdoc.embeddings.EmbeddingsManager.generate_embedding')
+    @patch('devco.embeddings.EmbeddingsManager.generate_embedding')
     def test_search_similar_content(self, mock_generate, embeddings_manager):
         """Test searching for similar content"""
         # Store some test embeddings
