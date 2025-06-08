@@ -54,8 +54,31 @@ def create_parser():
 
 def cmd_init():
     """Initialize devdoc in the current project"""
-    print("Initializing devdoc...")
-    # TODO: Implement init functionality
+    from .storage import DevDocStorage
+    
+    storage = DevDocStorage()
+    
+    if storage.is_initialized():
+        print("devdoc is already initialized in this project.")
+        return
+    
+    try:
+        storage.init()
+        print("✓ devdoc initialized successfully!")
+        print("  Created .devdoc/ directory with:")
+        print("  - config.json (configuration)")
+        print("  - principles.json (development principles)")
+        print("  - summary.json (project summary and sections)")
+        print("  - devdoc.db (embeddings database)")
+        print("  - .env (environment variables)")
+        print("")
+        print("Next steps:")
+        print("1. Add your GOOGLE_API_KEY to .devdoc/.env")
+        print("2. Add development principles: devdoc principles add")
+        print("3. Set project summary: devdoc summary replace")
+    except Exception as e:
+        print(f"Error initializing devdoc: {e}")
+        sys.exit(1)
 
 
 def main():
