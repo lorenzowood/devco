@@ -42,6 +42,8 @@ def create_parser():
     
     add_section = section_subparsers.add_parser('add', help='Add a new section')
     add_section.add_argument('name', help='Section name')
+    add_section.add_argument('--summary', help='Section summary')
+    add_section.add_argument('--detail', help='Section detail')
     
     replace_section = section_subparsers.add_parser('replace', help='Replace section content')
     replace_section.add_argument('name', help='Section name')
@@ -49,8 +51,12 @@ def create_parser():
     rm_section = section_subparsers.add_parser('rm', help='Remove a section')
     rm_section.add_argument('name', help='Section name')
     
-    # query command (any other argument)
-    parser.add_argument('query', nargs='?', help='Query the devdoc content')
+    # embed command
+    subparsers.add_parser('embed', help='Generate embeddings for all content')
+    
+    # query command
+    query_parser = subparsers.add_parser('query', help='Query the devdoc content')
+    query_parser.add_argument('text', help='Query text')
     
     return parser
 
@@ -132,14 +138,48 @@ def main():
         elif args.section_action == 'show':
             sections_manager.show_section(args.name)
         elif args.section_action == 'add':
-            sections_manager.add_section(args.name)
+            if hasattr(args, 'summary') and args.summary and hasattr(args, 'detail') and args.detail:
+                sections_manager.add_section_with_content(args.name, args.summary, args.detail)
+            else:
+                sections_manager.add_section(args.name)
         elif args.section_action == 'replace':
             sections_manager.replace_section(args.name)
         elif args.section_action == 'rm':
             sections_manager.remove_section(args.name)
-    elif args.query:
-        # Query command
-        print(f"Querying: {args.query}")
+    elif args.command == 'embed':
+        from .storage import DevDocStorage
+        from .embeddings import EmbeddingsManager
+        
+        storage = DevDocStorage()
+        if not storage.is_initialized():
+            print("devdoc not initialized. Run 'devdoc init' first.")
+            sys.exit(1)
+        
+        embeddings_manager = EmbeddingsManager(storage)
+        print("Generating embeddings for all content...")
+        embeddings_manager.embed_all_content()
+    elif args.command == 'query':
+        from .storage import DevDocStorage
+        from .embeddings import EmbeddingsManager
+        
+        storage = DevDocStorage()
+        if not storage.is_initialized():
+            print("devdoc not initialized. Run 'devdoc init' first.")
+            sys.exit(1)
+        
+        embeddings_manager = EmbeddingsManager(storage)
+        results = embeddings_manager.search_similar_content(args.text, limit=5)
+        
+        if not results:
+            print("No similar content found. Try running 'devdoc embed' first to generate embeddings.")
+            return
+        
+        print(f"Similar content for query: '{args.text}'")
+        print("=" * 50)
+        
+        for i, result in enumerate(results, 1):
+            print(f"\n{i}. [{result['content_type']}] {result['content_id']} (similarity: {result['similarity']:.3f})")
+            print(f"   {result['chunk_text'][:200]}{'...' if len(result['chunk_text']) > 200 else ''}")
     else:
         # No command provided
         parser.print_help()

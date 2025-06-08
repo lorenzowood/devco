@@ -4,6 +4,14 @@
     "testing": {
       "summary": "TDD approach with comprehensive test coverage",
       "detail": "We follow strict TDD methodology: write failing tests first, implement minimal code to pass, then refactor. Each component has isolated tests using temp directories and mocked I/O."
+    },
+    "architecture": {
+      "summary": "Modular CLI design with separate managers",
+      "detail": "The CLI uses argparse with subcommands. Each feature (principles, summary, sections) has its own manager class that handles business logic, keeping the CLI layer thin. Storage is centralized in DevDocStorage class."
+    },
+    "embeddings": {
+      "summary": "Vector embeddings with RAG querying using llm package",
+      "detail": "Uses Gemini embeddings via llm command-line tool. Content is chunked with overlap, embedded, and stored in SQLite. Cosine similarity search enables semantic querying across all project documentation including principles, summary, and sections."
     }
   }
 }
