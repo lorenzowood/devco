@@ -16,6 +16,10 @@
     "git": {
       "summary": "Automatic git version control for devdoc changes",
       "detail": "Every devdoc content change should automatically commit to git with descriptive messages. Preserve user's staging area by unstaging, staging only devdoc files, committing, then restaging user files. Use git status, add, and commit commands in devdoc/storage.py after save operations."
+    },
+    "packaging": {
+      "summary": "PyPI package configuration and publishing",
+      "detail": "Package built with python -m build creating wheel (.whl) and source distribution (.tar.gz) in dist/. Uses setup.py and pyproject.toml for metadata. Entry point: devdoc=devdoc.cli:main in setup.py:44. Version defined in devdoc/__init__.py:5 (__version__ = '0.1.0'). Install deps: llm>=0.13.0, llm-gemini, sqlite-utils>=3.0.0, python-dotenv>=1.0.0, numpy>=1.20.0. Build tools: pip install build twine. Check: twine check dist/*. Publish: twine upload dist/* (requires PyPI account)."
     }
   }
 }

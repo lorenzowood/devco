@@ -1,0 +1,7 @@
+include README.md
+include LICENSE
+include requirements.txt
+recursive-include devdoc *.py
+recursive-exclude tests *
+recursive-exclude .devdoc *
+exclude .gitignore

@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "devdoc"
+dynamic = ["version"]
+description = "A CLI tool that helps AI assistants understand projects through persistent documentation and RAG search"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Claude Code", email = "noreply@anthropic.com"}
+]
+keywords = ["documentation", "ai", "assistant", "rag", "vector", "search", "embeddings", "cli", "development"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "llm>=0.13.0",
+    "llm-gemini",
+    "sqlite-utils>=3.0.0",
+    "python-dotenv>=1.0.0",
+    "numpy>=1.20.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-mock>=3.0.0",
+]
+
+[project.scripts]
+devdoc = "devdoc.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/devdoc"
+Repository = "https://github.com/yourusername/devdoc"
+"Bug Reports" = "https://github.com/yourusername/devdoc/issues"
+Documentation = "https://github.com/yourusername/devdoc/wiki"
+
+[tool.setuptools.dynamic]
+version = {attr = "devdoc.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["devdoc*"]
