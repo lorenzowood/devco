@@ -105,11 +105,17 @@ def main():
         elif args.principles_action == 'clear':
             principles_manager.clear_principles()
     elif args.command == 'summary':
+        from .storage import DevDocStorage
+        from .summary import SummaryManager
+        
+        storage = DevDocStorage()
+        summary_manager = SummaryManager(storage)
+        
         if args.summary_action is None:
             # Show summary
-            print("Showing summary...")
+            summary_manager.show_summary()
         elif args.summary_action == 'replace':
-            print("Replacing summary...")
+            summary_manager.replace_summary()
     elif args.command == 'section':
         if args.section_action is None:
             print("Section command requires an action")
