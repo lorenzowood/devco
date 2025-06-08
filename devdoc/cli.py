@@ -37,6 +37,9 @@ def create_parser():
     section_parser = subparsers.add_parser('section', help='Manage project sections')
     section_subparsers = section_parser.add_subparsers(dest='section_action')
     
+    show_section = section_subparsers.add_parser('show', help='Show a specific section')
+    show_section.add_argument('name', help='Section name')
+    
     add_section = section_subparsers.add_parser('add', help='Add a new section')
     add_section.add_argument('name', help='Section name')
     
@@ -117,15 +120,23 @@ def main():
         elif args.summary_action == 'replace':
             summary_manager.replace_summary()
     elif args.command == 'section':
+        from .storage import DevDocStorage
+        from .sections import SectionsManager
+        
+        storage = DevDocStorage()
+        sections_manager = SectionsManager(storage)
+        
         if args.section_action is None:
             print("Section command requires an action")
             sys.exit(1)
+        elif args.section_action == 'show':
+            sections_manager.show_section(args.name)
         elif args.section_action == 'add':
-            print(f"Adding section '{args.name}'...")
+            sections_manager.add_section(args.name)
         elif args.section_action == 'replace':
-            print(f"Replacing section '{args.name}'...")
+            sections_manager.replace_section(args.name)
         elif args.section_action == 'rm':
-            print(f"Removing section '{args.name}'...")
+            sections_manager.remove_section(args.name)
     elif args.query:
         # Query command
         print(f"Querying: {args.query}")

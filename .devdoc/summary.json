@@ -1,4 +1,9 @@
 {
-  "summary": "devdoc is a CLI tool for managing project documentation and context to help AI assistants understand codebases better",
-  "sections": {}
+  "summary": "devdoc is a CLI tool that helps AI assistants understand projects by managing persistent documentation, principles, and context through embeddings and RAG querying",
+  "sections": {
+    "testing": {
+      "summary": "TDD approach with comprehensive test coverage",
+      "detail": "We follow strict TDD methodology: write failing tests first, implement minimal code to pass, then refactor. Each component has isolated tests using temp directories and mocked I/O."
+    }
+  }
 }
