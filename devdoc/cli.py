@@ -89,15 +89,21 @@ def main():
     if args.command == 'init':
         cmd_init()
     elif args.command == 'principles':
+        from .storage import DevDocStorage
+        from .principles import PrinciplesManager
+        
+        storage = DevDocStorage()
+        principles_manager = PrinciplesManager(storage)
+        
         if args.principles_action is None:
             # List principles
-            print("Listing principles...")
+            principles_manager.list_principles()
         elif args.principles_action == 'add':
-            print("Adding principle...")
+            principles_manager.add_principle()
         elif args.principles_action == 'rm':
-            print(f"Removing principle {args.number}...")
+            principles_manager.remove_principle(args.number)
         elif args.principles_action == 'clear':
-            print("Clearing principles...")
+            principles_manager.clear_principles()
     elif args.command == 'summary':
         if args.summary_action is None:
             # Show summary
