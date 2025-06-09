@@ -1,8 +1,8 @@
 [
-  "Keep code simple and readable",
-  "Follow Test-Driven Development: Red, Green, Refactor",
-  "Commit frequently after passing tests",
-  "Use llm package for consistent embeddings across environments",
-  "Include specific function names, file paths, and line numbers in documentation",
-  "Documentation should help AI assistants avoid file searching when context is lost"
+  "Use TDD principles: write unit tests; observe them fail; write code to make them pass; observe it passing; refactor; make sure it still passes",
+  "Take care not to make false claims about functionality working. Make your unit tests and your ad hoc testing good enough that failures in acceptance testing are rare. This is particualrly true when you are working on making changes to existing functionality: make sure the changes have really been made.",
+  "Once tests have passed and the user has accepted the changes, commit them.",
+  "Use devco to capture documentation about what you're writing as you go, and, using the query function, to find documentation if you need to understand how something works. Your documentation should make specific reference to modules and functions, and which source files they appear in, and where. All of this is intended to avoid your having to do speculative searches to try to find things.",
+  "Also use devco to capture user's remarks about errors and future work, so you do not forget them, for example, when compacting the conversation. The user should be confident that anything they have said to you should be recoverable in the devco documentation.",
+  "Use the documentation at https://pypi.org/project/devco/ to find out how it works."
 ]
