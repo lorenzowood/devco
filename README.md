@@ -34,6 +34,7 @@ devco init
 ```bash
 devco principles add --text "Follow Test-Driven Development"
 devco principles add --text "Keep functions under 20 lines"
+devco principles add --text "Use specific function names and file paths in documentation"
 ```
 
 ### Document your project
@@ -44,6 +45,10 @@ devco summary replace --text "FastAPI web service for user authentication with P
 devco section add architecture \
   --summary "Clean architecture with dependency injection" \
   --detail "Entry point: main.py:create_app() line 15. Uses FastAPI with dependency injection via Depends(). Database models in models/ directory. Business logic in services/ with UserService.create_user() method."
+
+devco section add testing \
+  --summary "TDD with pytest and comprehensive isolation" \
+  --detail "Tests in tests/ directory. Run: pytest -v. Key patterns: TestCase classes with temp_dir fixtures, @patch decorators for mocking, isolated DevDocStorage(tmpdir) per test. Example: test_add_principle() in tests/test_principles.py:33."
 ```
 
 ### Generate embeddings for semantic search
@@ -58,6 +63,55 @@ devco embed
 devco query "how does authentication work"
 devco query "testing approach"
 devco query "database schema"
+```
+
+## 🤖 For AI Developers
+
+### Essential Workflow
+
+When working with AI assistants on any project, establish this pattern:
+
+1. **Initialize devco immediately**: `devco init`
+2. **Document as you go**: After each feature/change, update relevant sections
+3. **Query before exploring**: `devco query "topic"` before searching files
+4. **Capture user feedback**: Document requirements and future work
+
+### AI Assistant Best Practices
+
+✅ **Start every session with:**
+```bash
+devco summary    # Understand the project
+devco principles # Know the coding standards
+```
+
+✅ **Before implementing features:**
+```bash
+devco query "authentication"      # Find existing patterns
+devco query "database models"     # Understand data layer
+devco query "testing framework"   # Follow test patterns
+```
+
+✅ **After implementing features:**
+```bash
+devco section add feature_name \
+  --summary "Brief description" \
+  --detail "Implementation details with function names, file paths, and usage examples"
+```
+
+### Real-World Example
+
+Instead of:
+```
+AI: Let me explore your codebase to understand how you handle user authentication...
+[reads 10+ files, makes assumptions]
+```
+
+Use:
+```
+AI: devco query "authentication"
+AI: Perfect! I can see you use JWT tokens with UserService.authenticate() 
+    in src/auth/service.py:45, and tests follow the pattern in 
+    tests/test_auth.py:test_login_success().
 ```
 
 ## 📚 Full Documentation
@@ -107,6 +161,27 @@ devco query "database setup"   # Semantic search
 devco query "testing framework" 
 ```
 
+### Git Integration (New in v0.1.8)
+
+devco automatically commits all documentation changes to git:
+
+```bash
+devco principles add --text "New principle"
+# → Creates git commit: "devco: update principles"
+
+devco summary replace --text "Updated project description"  
+# → Creates git commit: "devco: update summary"
+
+devco section add feature --summary "..." --detail "..."
+# → Creates git commit: "devco: update summary"
+```
+
+**Features:**
+- **Automatic commits**: Every devco change creates a descriptive git commit
+- **Staging preservation**: Your staged files remain untouched
+- **Safe operation**: Only commits devco files, ignores non-git projects
+- **Clean history**: Each devco action gets its own commit with clear messages
+
 ## 🏗️ Why This Works
 
 ### For AI Assistants
@@ -142,6 +217,7 @@ AI: Perfect! I can see you use pytest with TDD methodology,
 - **Storage**: JSON files + SQLite for vector embeddings  
 - **Embeddings**: Gemini via `llm` package for consistent results
 - **Search**: Cosine similarity with chunked content and overlap
+- **Git Integration**: Automatic commits for all devco changes with staging preservation
 
 ### File Structure
 

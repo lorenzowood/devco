@@ -4,6 +4,7 @@ Storage module for devco - handles .devco directory structure and data persisten
 import json
 import os
 import sqlite3
+import subprocess
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -91,6 +92,9 @@ class DevDocStorage:
         config_file = self.devco_dir / "config.json"
         with open(config_file, 'w') as f:
             json.dump(config, f, indent=2)
+        
+        # Auto-commit changes
+        self._git_commit_devco_changes("update config")
     
     def load_principles(self) -> List[str]:
         """Load principles from principles.json"""
@@ -106,6 +110,12 @@ class DevDocStorage:
         principles_file = self.devco_dir / "principles.json"
         with open(principles_file, 'w') as f:
             json.dump(principles, f, indent=2)
+        
+        # Auto-commit changes
+        if len(principles) == 0:
+            self._git_commit_devco_changes("clear principles")
+        else:
+            self._git_commit_devco_changes("update principles")
     
     def load_summary(self) -> Dict[str, Any]:
         """Load summary from summary.json"""
@@ -121,6 +131,9 @@ class DevDocStorage:
         summary_file = self.devco_dir / "summary.json"
         with open(summary_file, 'w') as f:
             json.dump(summary, f, indent=2)
+        
+        # Auto-commit changes
+        self._git_commit_devco_changes("update summary")
     
     def get_db_connection(self) -> sqlite3.Connection:
         """Get a connection to the SQLite database"""
@@ -135,3 +148,63 @@ class DevDocStorage:
         return (self.devco_dir.exists() and 
                 (self.devco_dir / "config.json").exists() and
                 (self.devco_dir / "devco.db").exists())
+    
+    def _is_git_repo(self) -> bool:
+        """Check if we're in a git repository"""
+        try:
+            subprocess.run(['git', 'rev-parse', '--git-dir'], 
+                         capture_output=True, check=True, cwd=self.project_root)
+            return True
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return False
+    
+    def _git_commit_devco_changes(self, action: str, details: str = ""):
+        """Commit devco file changes with proper staging isolation"""
+        if not self._is_git_repo():
+            return
+        
+        try:
+            # Get current staging area state
+            result = subprocess.run(['git', 'diff', '--cached', '--name-only'], 
+                                  capture_output=True, text=True, cwd=self.project_root)
+            staged_files = [f for f in result.stdout.strip().split('\n') if f] if result.stdout.strip() else []
+            
+            # Unstage all currently staged files
+            if staged_files:
+                subprocess.run(['git', 'reset'] + staged_files, 
+                             capture_output=True, cwd=self.project_root)
+            
+            # Stage only devco files that have changed
+            devco_files = ['.devco/config.json', '.devco/principles.json', 
+                          '.devco/summary.json', '.devco/devco.db']
+            
+            files_to_stage = []
+            for file_path in devco_files:
+                full_path = self.project_root / file_path
+                if full_path.exists():
+                    # Check if file has changes
+                    result = subprocess.run(['git', 'status', '--porcelain', file_path], 
+                                          capture_output=True, text=True, cwd=self.project_root)
+                    if result.stdout.strip():  # File has changes
+                        files_to_stage.append(file_path)
+            
+            # Stage and commit devco changes if any
+            if files_to_stage:
+                subprocess.run(['git', 'add'] + files_to_stage, 
+                             capture_output=True, cwd=self.project_root)
+                
+                commit_message = f"devco: {action}"
+                if details:
+                    commit_message += f" - {details}"
+                
+                subprocess.run(['git', 'commit', '-m', commit_message], 
+                             capture_output=True, cwd=self.project_root)
+            
+            # Restage original files
+            if staged_files:
+                subprocess.run(['git', 'add'] + staged_files, 
+                             capture_output=True, cwd=self.project_root)
+        
+        except Exception:
+            # Silent failure - don't break devco if git operations fail
+            pass
