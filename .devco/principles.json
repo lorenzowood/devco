@@ -4,6 +4,5 @@
   "Once tests have passed and the user has accepted the changes, commit them.",
   "Use devco to capture documentation about what you're writing as you go, and, using the query function, to find documentation if you need to understand how something works. Your documentation should make specific reference to modules and functions, and which source files they appear in, and where. All of this is intended to avoid your having to do speculative searches to try to find things.",
   "Also use devco to capture user's remarks about errors and future work, so you do not forget them, for example, when compacting the conversation. The user should be confident that anything they have said to you should be recoverable in the devco documentation.",
-  "Use the documentation at https://pypi.org/project/devco/ to find out how it works.",
-  "Test git integration functionality"
+  "Use the documentation at https://pypi.org/project/devco/ to find out how it works."
 ]
