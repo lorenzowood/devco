@@ -1,0 +1,6 @@
+{
+  "version": "0.1.0",
+  "embedding_model": "gemini-embedding-exp-03-07-2048",
+  "chunk_size": 500,
+  "chunk_overlap": 50
+}
