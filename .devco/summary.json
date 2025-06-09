@@ -1,5 +1,5 @@
 {
-  "summary": "devdoc is a CLI tool that helps AI assistants understand projects by managing persistent documentation, principles, and context through embeddings and RAG querying",
+  "summary": "Testing git staging preservation",
   "sections": {
     "testing": {
       "summary": "TDD approach with comprehensive test isolation",
